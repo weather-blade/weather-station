@@ -1,3 +1,6 @@
+// Google-Apps-Script app
+// Handles the GET request and saves the received data to google sheets.
+
 function doGet(e){
   Logger.log("--- doGet ---");
 
