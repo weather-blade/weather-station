@@ -7,6 +7,7 @@ void sendData(String params) {
   Serial.println(url);
   http.begin(url, root_ca); //Specify the URL and certificate
   int httpCode = http.GET();
+  delay(500);
   http.end();
   Serial.println("Done: " + String(httpCode));
 }
@@ -25,6 +26,7 @@ void connectWiFi() {
 
 void disconnectWiFi() {
   WiFi.disconnect();
+  delay(500);
   Serial.println("Disconnected from WiFi");
 }
 
@@ -37,13 +39,15 @@ void setup() {
 
 
   Serial.println("Initializing BMP-280");
+  delay(500);
   if (!bmp.begin(0x76)) { //0x76 is the default I2C adress for these sensors
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring or try a different address!"));
     while (1) delay(10);
   }
-  // Default settings from datasheet
+  delay(500);
+
   bmp.setSampling(Adafruit_BMP280::MODE_FORCED,     // Operating Mode
-                  Adafruit_BMP280::SAMPLING_X2,     // Temp. oversampling
+                  Adafruit_BMP280::SAMPLING_X16,     // Temp. oversampling (X2 is default)
                   Adafruit_BMP280::SAMPLING_X16,    // Pressure oversampling
                   Adafruit_BMP280::FILTER_X16,      // Filtering
                   Adafruit_BMP280::STANDBY_MS_500); // Standby time
@@ -52,10 +56,14 @@ void setup() {
 
 
   Serial.println("Initializing DHT-22");
+  delay(500);
   dht.begin();
+  delay(500);
   sensor_t sensor;
   dht.temperature().getSensor(&sensor);
+  delay(500);
   dht.humidity().getSensor(&sensor);
+  delay(500);
   Serial.println("DHT-22 succesfully initialized.");
 
 
@@ -71,14 +79,14 @@ void loop() {
 
   Serial.println("=========================");
   Serial.println("BMP-280 Measurements:");
-  // must call this to wake sensor up and get new measurement data
-  // it blocks until measurement is complete
-  if (bmp.takeForcedMeasurement()) {
-    // can now print out the new measurements
 
+  if (bmp.takeForcedMeasurement()) {
     // store measurements in variables
+    delay(500);
     BMP_Temperature = bmp.readTemperature();
+    delay(500);
     BMP_Pressure = bmp.readPressure();
+    delay(500);
 
     Serial.print(F("Temperature = "));
     Serial.print(BMP_Temperature);
@@ -99,6 +107,7 @@ void loop() {
   // Get temperature event and print its value.
   sensors_event_t event;
   dht.temperature().getEvent(&event);
+  delay(500);
   if (isnan(event.temperature)) {
     Serial.println(F("Error reading temperature! (DHT-22)"));
   }
@@ -111,12 +120,12 @@ void loop() {
   }
   // Get humidity event and print its value.
   dht.humidity().getEvent(&event);
+  delay(500);
   if (isnan(event.relative_humidity)) {
     Serial.println(F("Error reading humidity! (DHT-22)"));
   }
   else {
     DHT_Humidity = event.relative_humidity;
-
     Serial.print(F("Humidity: "));
     Serial.print(DHT_Humidity);
     Serial.println(F("%"));
@@ -127,7 +136,7 @@ void loop() {
 
   Serial.println();
   connectWiFi();
-  sendData("tag=adc_A0&value="+dataPayload);
+  sendData("tag=normal&value="+dataPayload);
   disconnectWiFi();
   Serial.println("End of loop, deep-sleeping for 5 minutes");
   Serial.println("=========================");
