@@ -38,11 +38,11 @@ void setup() {
   Serial.println("Initializing Sensors");
 
 
-  Serial.println("Initializing BMP-280");
+  Serial.print("Initializing BMP-280");
   delay(500);
-  if (!bmp.begin(0x76)) { //0x76 is the default I2C adress for these sensors
-    Serial.println(F("Could not find a valid BMP280 sensor, check wiring or try a different address!"));
-    while (1) delay(10);
+  while (!bmp.begin(0x76)) { //0x76 is the default I2C adress for these sensors
+    Serial.print("."); // check wiring or try different adress if you are stuck in loop
+    delay(500);
   }
   delay(500);
 
@@ -52,6 +52,7 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,      // Filtering
                   Adafruit_BMP280::STANDBY_MS_500); // Standby time
 
+  Serial.println();
   Serial.println("BMP-280 succesfully initialized.");
 
 
