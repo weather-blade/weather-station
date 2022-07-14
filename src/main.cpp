@@ -13,13 +13,19 @@ void sendData(String params) {
 }
 
 void connectWiFi() {
-  Serial.print("Connecting to WiFi");	
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  while (WiFi.status() != WL_CONNECTED) { // runs the whole connection procedure again if connection wasn't estabilished within 20 seconds
+    Serial.print("Connecting to WiFi");
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+
+    int connectTimer = 0;
+    while (WiFi.status() != WL_CONNECTED && connectTimer < 20) {
+      Serial.print(".");
+      delay(1000);
+      connectTimer++; // to make sure you aren't just endlessly stuck here when connection doesn't happen for whatever reason
+    }
   }
+
   Serial.println();
   Serial.println("Connected to WiFi");
 }
