@@ -6,3 +6,5 @@
 
 /include/secrets.h
 gscripts_certif.cer
+
+serialLog.txt
