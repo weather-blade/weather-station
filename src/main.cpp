@@ -1,25 +1,45 @@
 #include <config.h>
 
-void sendData(String params) {
+void sendData(float BMP_Temperature, float BMP_Pressure, float DHT_Temperature, float DHT_Humidity)
+{
   HTTPClient http;
-  String url="https://script.google.com/macros/s/" + String(GOOGLE_SCRIPT_ID) + "/exec?"+params;
-  Serial.println("Making GET request at:");
+  String url = "https://script.google.com/macros/s/" + String(GOOGLE_SCRIPT_ID) + "/exec";
+  Serial.println("Making POST request at:");
   Serial.println(url);
-  http.begin(url, root_ca); //Specify the URL and certificate
-  int httpCode = http.GET();
-  delay(500);
+  http.begin(url, root_ca); // Specify the URL and certificate
+  http.addHeader("Content-Type", "application/json");
+
+  StaticJsonDocument<128> doc;
+  doc["tag"] = "normal";
+  doc["BMP_Temperature"] = BMP_Temperature;
+  doc["BMP_Pressure"] = BMP_Pressure;
+  doc["DHT_Temperature"] = DHT_Temperature;
+  doc["DHT_Humidity"] = DHT_Humidity;
+
+  String jsonOutput;
+  serializeJson(doc, jsonOutput);
+  Serial.println("Serialized JSON: ");
+  Serial.println(jsonOutput);
+
+  uint8_t httpCode = http.POST(String(jsonOutput));
+  delay(5000);
+
   http.end();
-  Serial.println("Done: " + String(httpCode));
+  Serial.print("HTTP response code: ");
+  Serial.println(httpCode);
 }
 
-void connectWiFi() {
-  while (WiFi.status() != WL_CONNECTED) { // runs the whole connection procedure again if connection wasn't estabilished within 20 seconds
+void connectWiFi()
+{
+  while (WiFi.status() != WL_CONNECTED)
+  { // runs the whole connection procedure again if connection wasn't estabilished within 20 seconds
     Serial.print("Connecting to WiFi");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
     int connectTimer = 0;
-    while (WiFi.status() != WL_CONNECTED && connectTimer < 20) {
+    while (WiFi.status() != WL_CONNECTED && connectTimer < 20)
+    {
       Serial.print(".");
       delay(1000);
       connectTimer++; // to make sure you aren't just endlessly stuck here when connection doesn't happen for whatever reason
@@ -30,37 +50,37 @@ void connectWiFi() {
   Serial.println("Connected to WiFi");
 }
 
-void disconnectWiFi() {
+void disconnectWiFi()
+{
   WiFi.disconnect();
   delay(500);
   Serial.println("Disconnected from WiFi");
 }
 
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
   Serial.println();
   Serial.println("Initializing Sensors");
 
-
   Serial.print("Initializing BMP-280");
   delay(500);
-  while (!bmp.begin(0x76)) { //0x76 is the default I2C adress for these sensors
+  while (!bmp.begin(0x76))
+  {                    // 0x76 is the default I2C adress for these sensors
     Serial.print("."); // check wiring or try different adress if you are stuck in loop
     delay(500);
   }
   delay(500);
 
   bmp.setSampling(Adafruit_BMP280::MODE_FORCED,     // Operating Mode
-                  Adafruit_BMP280::SAMPLING_X16,     // Temp. oversampling (X2 is default)
+                  Adafruit_BMP280::SAMPLING_X16,    // Temp. oversampling (X2 is default)
                   Adafruit_BMP280::SAMPLING_X16,    // Pressure oversampling
                   Adafruit_BMP280::FILTER_X16,      // Filtering
                   Adafruit_BMP280::STANDBY_MS_500); // Standby time
 
   Serial.println();
   Serial.println("BMP-280 succesfully initialized.");
-
 
   Serial.println("Initializing DHT-22");
   delay(500);
@@ -73,12 +93,12 @@ void setup() {
   delay(500);
   Serial.println("DHT-22 succesfully initialized.");
 
-
   Serial.println("All sensors initialized.");
   Serial.println();
 }
 
-void loop() {
+void loop()
+{
   float BMP_Temperature;
   float BMP_Pressure;
   float DHT_Temperature;
@@ -87,10 +107,12 @@ void loop() {
   Serial.println("=========================");
   Serial.println("BMP-280 Measurements:");
 
-  if (bmp.takeForcedMeasurement()) {
+  if (bmp.takeForcedMeasurement())
+  {
     // store measurements in variables
     delay(500);
     BMP_Temperature = bmp.readTemperature();
+    BMP_Temperature -= 1.2; // Made In China...
     delay(500);
     BMP_Pressure = bmp.readPressure();
     delay(500);
@@ -104,10 +126,11 @@ void loop() {
     Serial.println(" Pa");
 
     Serial.println();
-  } else {
+  }
+  else
+  {
     Serial.println("Forced measurement failed! (BMP280)");
   }
-
 
   Serial.println();
   Serial.println("DHT-22 Measurements:");
@@ -115,10 +138,12 @@ void loop() {
   sensors_event_t event;
   dht.temperature().getEvent(&event);
   delay(500);
-  if (isnan(event.temperature)) {
+  if (isnan(event.temperature))
+  {
     Serial.println(F("Error reading temperature! (DHT-22)"));
   }
-  else {
+  else
+  {
     DHT_Temperature = event.temperature;
 
     Serial.print(F("Temperature: "));
@@ -128,22 +153,21 @@ void loop() {
   // Get humidity event and print its value.
   dht.humidity().getEvent(&event);
   delay(500);
-  if (isnan(event.relative_humidity)) {
+  if (isnan(event.relative_humidity))
+  {
     Serial.println(F("Error reading humidity! (DHT-22)"));
   }
-  else {
+  else
+  {
     DHT_Humidity = event.relative_humidity;
     Serial.print(F("Humidity: "));
     Serial.print(DHT_Humidity);
     Serial.println(F("%"));
   }
 
-
-  String dataPayload = String(BMP_Temperature) + ";" + String(BMP_Pressure) + ";" + String(DHT_Temperature) + ";" + String(DHT_Humidity);
-
   Serial.println();
   connectWiFi();
-  sendData("tag=normal&value="+dataPayload);
+  sendData(BMP_Temperature, BMP_Pressure, DHT_Temperature, DHT_Humidity);
   disconnectWiFi();
   Serial.println("End of loop, deep-sleeping for 5 minutes");
   Serial.println("=========================");
