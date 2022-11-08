@@ -4,16 +4,17 @@
 function doPost(e) {
   console.log("Recieved POST request");
   try {
-    // DEBUG
-    //const body = {
-    //  "tag": "debugging",
-    //  "BMP_Temperature": 11,
-    //  "BMP_Pressure": 11,
-    //  "DHT_Temperature": 11,
-    //  "DHT_Humidity": 11
-    //}
-
-    const body = JSON.parse(e.postData.contents);
+    const body = e === undefined ?
+      // Debug values - only when running from console
+      {
+        "tag": "debugging",
+        "BMP_Temperature": 11.11,
+        "BMP_Pressure": 11.11,
+        "DHT_Temperature": 11.11,
+        "DHT_Humidity": 11.11
+      }
+      :
+      JSON.parse(e.postData.contents) // parse body of the POST request 
 
     console.log("POST request body: \n", body);
 
@@ -23,7 +24,7 @@ function doPost(e) {
   }
 
   catch (error) {
-    console.log("Processing POST request failed: \n", error);
+    console.error("Processing POST request failed: \n", error);
   }
 }
 
@@ -32,28 +33,29 @@ function saveData(data) {
   console.log("Saving data to spreadsheet");
   try {
     const dateTime = new Date();
+    const values = [[dateTime, data.tag, data.BMP_Temperature, data.BMP_Pressure, data.DHT_Temperature, data.DHT_Humidity]];
+    console.log("Saving values to spreadsheets: ", values);
 
-    const ss = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1_YL1ZynR3oQEMSgbeh6L2CAQVNAri5ZykgG3BgKB_hA/edit");
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    console.log("Selected active spreadsheet: ", ss.getName());
+
     const dataLoggerSheet = ss.getSheetByName("Meteostanice");
+    console.log("Selected data logger sheet: ", dataLoggerSheet.getName());
 
     // Makes new row just bellow the header to insert new data into
     dataLoggerSheet.insertRowAfter(1);
+    console.log("Inserted new row at the top");
 
-    // For inserting into the newly created row
-    const row = 2;
+    const range = dataLoggerSheet.getRange(2, 2, 1, 6); // 2nd row, 2nd column, select 1 row and 6 columns
+    console.log("Selected range: ", range.getA1Notation());
 
-    // Start Populating the data
-    dataLoggerSheet.getRange("B" + row).setValue(dateTime);
-    dataLoggerSheet.getRange("C" + row).setValue(data.tag);
-    dataLoggerSheet.getRange("D" + row).setValue(data.BMP_Temperature);
-    dataLoggerSheet.getRange("E" + row).setValue(data.BMP_Pressure);
-    dataLoggerSheet.getRange("F" + row).setValue(data.DHT_Temperature);
-    dataLoggerSheet.getRange("G" + row).setValue(data.DHT_Humidity);
+    range.setValues(values);
+    console.log("Saved values: ", range.getValues());
 
     console.log("Data saved succesfully");
   }
 
   catch (error) {
-    console.log("Saving data failed: \n", error);
+    console.error("Saving data failed: \n", error);
   }
 }
