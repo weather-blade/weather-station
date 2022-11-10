@@ -14,7 +14,7 @@ function doPost(e) {
         "DHT_Humidity": 11.11
       }
       :
-      JSON.parse(e.postData.contents) // parse body of the POST request 
+      JSON.parse(e.postData.contents) // parse body of the POST request otherwise
 
     console.log("POST request body: \n", body);
 
@@ -32,44 +32,46 @@ function doPost(e) {
 function saveData(data) {
   console.log("Saving data to spreadsheet");
 
-  const maxTries = 3;
-  let triesCount = 0;
+  try {
+    const dateTime = new Date();
+    const values = [[dateTime, data.tag, data.BMP_Temperature, data.BMP_Pressure, data.DHT_Temperature, data.DHT_Humidity]];
+    console.log("Saving values to spreadsheets: ", values);
 
-  while (true) {
-    try {
-      const dateTime = new Date();
-      const values = [[dateTime, data.tag, data.BMP_Temperature, data.BMP_Pressure, data.DHT_Temperature, data.DHT_Humidity]];
-      console.log("Saving values to spreadsheets: ", values);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    console.log("Selected active spreadsheet: ", ss.getName());
 
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      console.log("Selected active spreadsheet: ", ss.getName());
+    const dataLoggerSheet = ss.getSheetByName("Meteostanice");
+    console.log("Selected data logger sheet: ", dataLoggerSheet.getName());
 
-      const dataLoggerSheet = ss.getSheetByName("Meteostanice");
-      console.log("Selected data logger sheet: ", dataLoggerSheet.getName());
+    // Makes new row just bellow the header to insert new data into
+    dataLoggerSheet.insertRowAfter(1);
+    console.log("Inserted new row at the top");
 
-      // Makes new row just bellow the header to insert new data into
-      dataLoggerSheet.insertRowAfter(1);
-      console.log("Inserted new row at the top");
+    const range = dataLoggerSheet.getRange(2, 2, 1, 6); // 2nd row, 2nd column, select 1 row and 6 columns
+    console.log("Selected range: ", range.getA1Notation());
 
-      const range = dataLoggerSheet.getRange(2, 2, 1, 6); // 2nd row, 2nd column, select 1 row and 6 columns
-      console.log("Selected range: ", range.getA1Notation());
 
-      range.setValues(values);
-      console.log("Saved values: ", range.getValues());
+    const maxTries = 3; // total number of tries
+    let triesCount = 0;
 
-      console.log("Data saved succesfully");
-      return;
-    }
+    while (true) {
+      try {
+        range.setValues(values); // this sometimes fails for reasons known only to god himself
 
-    catch (error) {
-      console.warn("Saving data failed: \n", error);
-
-      // getting access sometimes fails
-      if (++triesCount === maxTries) {
-        throw "Could not save data to spreadsheet";
+        console.log("Saved values: ", range.getValues());
+        console.log("Data saved succesfully");
+        return;
       }
+      catch (error) {
+        if (++triesCount === maxTries) {
+          throw "Could not save data to spreadsheet";
+        }
 
-      console.warn("Retrying to save data");
+        console.warn("Saving data failed, trying again...")
+      }
     }
+  }
+  catch (error) {
+    console.error("Failed saving data to spreadsheet: \n", error);
   }
 }
