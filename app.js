@@ -32,46 +32,43 @@ function doPost(e) {
 function saveData(data) {
   console.log("Saving data to spreadsheet");
 
-  try {
-    const dateTime = new Date();
-    const values = [[dateTime, data.tag, data.BMP_Temperature, data.BMP_Pressure, data.DHT_Temperature, data.DHT_Humidity]];
-    console.log("Saving values to spreadsheets: ", values);
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    console.log("Selected active spreadsheet: ", ss.getName());
+  const maxTries = 3; // total number of tries
+  let triesCount = 0;
 
-    const dataLoggerSheet = ss.getSheetByName("Meteostanice");
-    console.log("Selected data logger sheet: ", dataLoggerSheet.getName());
+  while (true) {
+    try {
+      const dateTime = new Date();
+      const values = [[dateTime, data.tag, data.BMP_Temperature, data.BMP_Pressure, data.DHT_Temperature, data.DHT_Humidity]];
+      console.log("Saving values to spreadsheets: ", values);
 
-    // Makes new row just bellow the header to insert new data into
-    dataLoggerSheet.insertRowAfter(1);
-    console.log("Inserted new row at the top");
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      console.log("Selected active spreadsheet: ", ss.getName());
 
-    const range = dataLoggerSheet.getRange(2, 2, 1, 6); // 2nd row, 2nd column, select 1 row and 6 columns
-    console.log("Selected range: ", range.getA1Notation());
+      const dataLoggerSheet = ss.getSheetByName("Meteostanice");
+      console.log("Selected data logger sheet: ", dataLoggerSheet.getName());
 
+      const range = dataLoggerSheet.getRange(2, 2, 1, 6); // 2nd row, 2nd column, select 1 row and 6 columns
+      console.log("Selected range: ", range.getA1Notation());
 
-    const maxTries = 3; // total number of tries
-    let triesCount = 0;
+      // if all cells aren't empty
+      if (range.getValues()[0].some(value => value !== "")) {
+        // make new row just bellow the header to insert new data into
+        dataLoggerSheet.insertRowAfter(1);
+        console.log("Inserted new row at the top");
+      };
 
-    while (true) {
-      try {
-        range.setValues(values); // this sometimes fails for reasons known only to god himself
+      range.setValues(values);
 
-        console.log("Saved values: ", range.getValues());
-        console.log("Data saved succesfully");
-        return;
-      }
-      catch (error) {
-        if (++triesCount === maxTries) {
-          throw "Could not save data to spreadsheet";
-        }
-
-        console.warn("Saving data failed, trying again...")
-      }
+      console.log("Data saved succesfully");
+      return;
     }
-  }
-  catch (error) {
-    console.error("Failed saving data to spreadsheet: \n", error);
+    catch (error) {
+      if (++triesCount === maxTries) {
+        throw "Could not save data to spreadsheet";
+      }
+
+      console.warn("Saving data failed, trying again...")
+    }
   }
 }
