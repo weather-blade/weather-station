@@ -32,7 +32,6 @@ function doPost(e) {
 function saveData(data) {
   console.log("Saving data to spreadsheet");
 
-
   const maxTries = 3; // total number of tries
   let triesCount = 0;
 
@@ -54,10 +53,12 @@ function saveData(data) {
       // if all cells aren't empty
       if (range.getValues()[0].some(value => value !== "")) {
         // make new row just bellow the header to insert new data into
+        console.log("Inserting new row at the top...");
         dataLoggerSheet.insertRowAfter(1);
         console.log("Inserted new row at the top");
       };
 
+      console.log("Saving values...");
       range.setValues(values);
 
       console.log("Data saved succesfully");
@@ -68,7 +69,7 @@ function saveData(data) {
         throw "Could not save data to spreadsheet";
       }
 
-      console.warn("Saving data failed, trying again...")
+      console.warn(`Saving data failed: \n${error} \nTrying again...`)
     }
   }
 }
