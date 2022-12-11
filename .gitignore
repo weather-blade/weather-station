@@ -9,4 +9,5 @@ gscripts_certif.cer
 
 serialLog.txt
 serialLog_saved.txt
+platformio-device-monitor-*.log
 todo.txt

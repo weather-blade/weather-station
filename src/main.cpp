@@ -46,8 +46,7 @@ void connectWiFi()
     }
   }
 
-  Serial.println();
-  Serial.println("Connected to WiFi");
+  Serial.println("\nConnected to WiFi");
 }
 
 void disconnectWiFi()
@@ -61,7 +60,7 @@ void setup()
 {
   Serial.begin(115200);
 
-  Serial.println();
+  Serial.println("\n=========================");
   Serial.println("Initializing Sensors");
 
   Serial.print("Initializing BMP-280");
@@ -79,8 +78,7 @@ void setup()
                   Adafruit_BMP280::FILTER_X16,      // Filtering
                   Adafruit_BMP280::STANDBY_MS_500); // Standby time
 
-  Serial.println();
-  Serial.println("BMP-280 succesfully initialized.");
+  Serial.println("\nBMP-280 succesfully initialized");
 
   Serial.println("Initializing DHT-22");
   delay(500);
@@ -91,10 +89,9 @@ void setup()
   delay(500);
   dht.humidity().getSensor(&sensor);
   delay(500);
-  Serial.println("DHT-22 succesfully initialized.");
+  Serial.println("DHT-22 succesfully initialized");
 
-  Serial.println("All sensors initialized.");
-  Serial.println();
+  Serial.println("All sensors initialized\n");
 }
 
 void loop()
@@ -104,8 +101,7 @@ void loop()
   float DHT_Temperature;
   float DHT_Humidity;
 
-  Serial.println("=========================");
-  Serial.println("BMP-280 Measurements:");
+  Serial.println("BMP-280 measurements:");
 
   if (bmp.takeForcedMeasurement())
   {
@@ -119,21 +115,18 @@ void loop()
 
     Serial.print(F("Temperature = "));
     Serial.print(BMP_Temperature);
-    Serial.println(" *C");
+    Serial.println(" °C");
 
     Serial.print(F("Pressure = "));
     Serial.print(BMP_Pressure);
     Serial.println(" Pa");
-
-    Serial.println();
   }
   else
   {
     Serial.println("Forced measurement failed! (BMP280)");
   }
 
-  Serial.println();
-  Serial.println("DHT-22 Measurements:");
+  Serial.println("\nDHT-22 measurements:");
   // Get temperature event and print its value.
   sensors_event_t event;
   dht.temperature().getEvent(&event);
