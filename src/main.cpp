@@ -3,18 +3,25 @@
 void sendData(float BMP_Temperature, float BMP_Pressure, float DHT_Temperature, float DHT_Humidity)
 {
   HTTPClient http;
-  String url = "https://script.google.com/macros/s/" + String(GOOGLE_SCRIPT_ID) + "/exec";
+  String url = "https://weather-station-backend.fly.dev/api/readings";
+
   Serial.println("Making POST request at:");
   Serial.println(url);
-  http.begin(url, root_ca); // Specify the URL and certificate
-  http.addHeader("Content-Type", "application/json");
+  http.begin(url);
 
+  // req headers
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("password", apiPassword); // needed for POST request
+  http.addHeader("short", "true");         // for reply only with status code
+
+  // https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/
   StaticJsonDocument<128> doc;
-  doc["tag"] = "normal";
-  doc["BMP_Temperature"] = BMP_Temperature;
-  doc["BMP_Pressure"] = BMP_Pressure;
-  doc["DHT_Temperature"] = DHT_Temperature;
-  doc["DHT_Humidity"] = DHT_Humidity;
+  // req body
+  doc["status"] = "normal";
+  doc["temperature_BMP"] = BMP_Temperature;
+  doc["pressure_BMP"] = BMP_Pressure;
+  doc["temperature_DHT"] = DHT_Temperature;
+  doc["humidity_DHT"] = DHT_Humidity;
 
   String jsonOutput;
   serializeJson(doc, jsonOutput);
