@@ -1,15 +1,12 @@
 # weather-station-V1
 
-Simple weather monitoring station.
+## About this repository
 
-Uses BMP-280 to log temperature + pressure and DHT-22 to log temperature + relative humidity.
+Weather monitoring station that uses BMP-280 to read temperature + pressure and DHT-22 to read temperature + relative humidity.
 
-Sensors are connected to NodeMcu ESP-32 (wiring.jpg).
+Sensors are connected to NodeMcu ESP-32 (see `wiring.jpg`).
 
-The ESP logs data once every 5 minutes, connects to WiFi and sends POST request to google scripts app with the collected data.
-After that, ESP goes into deep sleep and wakes up after 5 minutes to repeat the whole loop again.
+The ESP reads data from both sensors once every 5 minutes, connects to WiFi and sends POST request to my [backend API](https://github.com/Bladesheng/weather-station-backend) with the collected data.
+After that, ESP goes into deep sleep and wakes up after 5 minutes to do everything again.
 
-The Google-Apps-Script web app handles the POST request and saves the received data to google sheets.
-
-The collected data and relevant graphs are here:
-https://docs.google.com/spreadsheets/d/1_YL1ZynR3oQEMSgbeh6L2CAQVNAri5ZykgG3BgKB_hA
+The first version used [google sheets](https://docs.google.com/spreadsheets/d/1_YL1ZynR3oQEMSgbeh6L2CAQVNAri5ZykgG3BgKB_hA) as databasse and to display graphs before i learned how to do proper backend server - see `app.js` (I know...)
