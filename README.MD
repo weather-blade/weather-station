@@ -11,4 +11,4 @@ After that, ESP goes into deep sleep and wakes up after 5 minutes to repeat ever
 
 The collected data is then displayed on my frontend [web app](https://github.com/Bladesheng/weather-station-frontend)
 
-The first version used [google sheets](https://docs.google.com/spreadsheets/d/1_YL1ZynR3oQEMSgbeh6L2CAQVNAri5ZykgG3BgKB_hA) as databasse (I know...) and to display graphs before i learned how to do proper backend server - see [`app.js`](https://github.com/Bladesheng/weather-station-V1/blob/main/app.js) 
+The first version used [Google Apps Script app](https://github.com/Bladesheng/weather-station-V1/blob/main/app.js) as "API" and [google sheets](https://docs.google.com/spreadsheets/d/1_YL1ZynR3oQEMSgbeh6L2CAQVNAri5ZykgG3BgKB_hA) as database (I know...) and to display graphs before i learned how to do proper backend server.
