@@ -1,5 +1,8 @@
 #include <config.h>
 
+// onboard LED
+#define LED 2
+
 void sendData(float BMP_Temperature, float BMP_Pressure, float DHT_Temperature, float DHT_Humidity)
 {
   HTTPClient http;
@@ -66,6 +69,9 @@ void disconnectWiFi()
 void setup()
 {
   Serial.begin(115200);
+
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, HIGH);
 
   Serial.println("\n=========================");
   Serial.println("Initializing Sensors");
@@ -171,6 +177,8 @@ void loop()
   disconnectWiFi();
   Serial.println("End of loop, deep-sleeping for 5 minutes");
   Serial.println("=========================");
+
+  digitalWrite(LED, LOW);
 
   esp_sleep_enable_timer_wakeup(5 * 60 * 1000000); // microseconds
   esp_deep_sleep_start();
