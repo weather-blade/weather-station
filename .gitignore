@@ -5,7 +5,6 @@
 .vscode/ipch
 
 /include/secrets.h
-gscripts_certif.cer
 
 serialLog.txt
 serialLog_saved.txt
