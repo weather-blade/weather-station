@@ -6,7 +6,9 @@
 
 /include/secrets.h
 
+logs
 serialLog.txt
 serialLog_saved.txt
 platformio-device-monitor-*.log
+
 todo.txt
