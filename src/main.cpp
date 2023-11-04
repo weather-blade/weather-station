@@ -6,7 +6,7 @@
 void sendData(float BMP_Temperature, float BMP_Pressure, float DHT_Temperature, float DHT_Humidity)
 {
   HTTPClient http;
-  String url = "https://weather-station-backend.fly.dev/api/readings";
+  String url = "https://weatherapi.bladesheng.com/api/readings";
 
   Serial.println("Making POST request at:");
   Serial.println(url);
